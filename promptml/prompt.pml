@@ -35,13 +35,21 @@
 
   # Examples are used to provide sample inputs and outputs for the task
   @examples
-    @item
-      input: Design the core architecture and components for a large-scale e-commerce web application.
-      output: For a large-scale e-commerce web application, a microservices architecture would be suitable due to its inherent scalability and flexibility...
+    @example
+      @input 
+        Design the core architecture and components for a large-scale e-commerce web application.
+      @end
+      @output
+        For a large-scale e-commerce web application, a microservices architecture would be suitable due to its inherent scalability and flexibility...
+      @end
     @end
-    @item
-      input: Outline main components for a large-scale e-commerce web application.
-      output: Product Catalog, User Management, Order Processing, Payment Gateway, Search Engine, Recommendation Engine are the main components of a large-scale e-commerce web application...
+    @example
+      @input  
+        Outline main components for a large-scale e-commerce web application.
+      @end
+      @output 
+        Product Catalog, User Management, Order Processing, Payment Gateway, Search Engine, Recommendation Engine are the main components of a large-scale e-commerce web application...
+      @end
     @end
   @end
 

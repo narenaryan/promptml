@@ -54,3 +54,69 @@ Language grammar is influenced by XML & Ruby, so if you know any one of them, yo
 ## Why not XML, YAML, or JSON for PromptML ?
 First, XML, JSON, and YAML are not DSL languages. They are data formats that can represent any form of data. Second, generative AI needs a strict, yet flexible data language with fixed constraints which evolve along with the domain.
 PromptML is built exactly to solve those two issues.
+
+## Usage
+
+1. Install Python requirements
+```bash
+pip install -r requirements.txt
+```
+2. import the parser and parse a promptML file
+```py
+from promptml.parser import PromptParser
+
+promptml_code = '''
+    @prompt
+    @context
+    This is the context section.
+    @end
+
+    @objective
+    This is the objective section.
+    @end
+
+    @instructions
+    These are the instructions.
+    @end
+
+    @examples
+    @example
+    @input
+    Input example 1
+    @end
+    @output
+    Output example 1
+    @end
+    @end
+    @end
+
+    @constraints
+    @length min: 1 max: 10
+    @end
+
+    @metadata
+    @domain
+    Domain example
+    @end
+    @difficulty
+    Difficulty example
+    @end
+    @end
+'''
+
+parser = PromptParser(promptml_code)
+prompt = parser.parse()
+
+print(prompt)
+# Output: {
+#     'context': 'This is the context section.',
+#     'objective': 'This is the objective section.',
+#     'instructions': 'These are the instructions.',
+#     'examples': [
+#         {'input': 'Input example 1', 'output': 'Output example 1'}
+#     ],
+#     'constraints': {'length': {'min': 1, 'max': 10}},
+#     'metadata': {'domain': 'Domain example', 'difficulty': 'Difficulty example'}
+# }
+
+```
