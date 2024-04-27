@@ -32,3 +32,5 @@ The language is simple. You start blocks with `@` section annotation. A section 
     @end
 @end
 ```
+
+See [prompt.pml](./promptml/prompt.pml) to see an example.
