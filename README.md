@@ -43,7 +43,7 @@ The language is simple. You start blocks with `@` section annotation. A section 
 @end
 ```
 
-See [prompt.pml](./tests/prompt.pml) to see an example.
+See [prompt.pml](./prompt.pml) to see an example.
 
 ## Design
 Regular text prompts are very abstract in nature. Natural languages are very flexible but provides least reliability. How to provide context for an AI system and ask something ? Shouldn't we specify that explicitly.
