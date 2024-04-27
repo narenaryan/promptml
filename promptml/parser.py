@@ -62,7 +62,7 @@ Example usage:
 """
 
 import json
-import re
+import os
 
 
 from lark import Lark, Transformer
@@ -145,8 +145,9 @@ class PromptParser:
     # Define the grammar for the prompt markup language.
     def __init__(self, dsl_code):
         promptml_grammar = None
-
-        with open('grammar.lark', 'r', encoding="utf-8") as f:
+        # get current directory
+        dir_path = os.path.abspath(os.path.dirname(__file__))
+        with open(f'{dir_path}/grammar.lark', 'r', encoding="utf-8") as f:
             promptml_grammar = f.read()
 
         self.dsl_code = dsl_code
