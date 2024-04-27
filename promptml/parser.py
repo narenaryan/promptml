@@ -62,15 +62,97 @@ Example usage:
 """
 
 import json
-import re
+import os
+
+
+from lark import Lark, Transformer
+
+class PromptMLTransformer(Transformer):
+    """
+    A class for transforming the parsed PromptML code into a structured format.
+    """
+    def prompt(self, items):
+        sections = {}
+        tree = items[0]
+        for child in tree.children:
+            if child.data == "section":
+                data = child.children[0]
+                sections.update(data)
+
+        return sections
+
+    def context(self, items):
+        return {"context": items[0].strip()}
+
+    def objective(self, items):
+        return {"objective": items[0].strip()}
+
+    def instructions(self, items):
+        steps = [item.value.strip() for item in items]
+        return {"instructions": steps}
+
+    def instruction(self, items):
+        return items[0]
+
+    def examples(self, items):
+        examples = [example for example in items]
+        return {"examples": examples}
+
+    def example(self, items):
+        input_text = items[0].children[0].strip()
+        output_text = items[1].children[0].strip()
+        return {"input": input_text, "output": output_text}
+
+    def constraints(self, items):
+        constraints = {}
+        for item in items:
+            constraints.update(item.children[0])
+
+        return {"constraints": constraints}
+
+    def length(self, items):
+        min_length = int(items[0])
+        max_length = int(items[1])
+        return {"length": {"min": min_length, "max": max_length}}
+
+    def tone(self, items):
+        return {"tone": items[0].strip()}
+
+    def metadata(self, items):
+        metadata = {}
+        for item in items:
+            child = item.children[0]
+
+            for k,v in child.items():
+                metadata[k] = v.strip()
+
+        return {"metadata": metadata}
+
+    def domain(self, items):
+        return {"domain": items[0]}
+
+    def difficulty(self, items):
+        return {"difficulty": items[0]}
+
+    def text(self, items):
+        return items[0]
 
 class PromptParser:
+    transformer = PromptMLTransformer()
     """
     A class for parsing prompt markup language code and extract information.
     """
+    # Define the grammar for the prompt markup language.
     def __init__(self, dsl_code):
+        promptml_grammar = None
+        # get current directory
+        dir_path = os.path.abspath(os.path.dirname(__file__))
+        with open(f'{dir_path}/grammar.lark', 'r', encoding="utf-8") as f:
+            promptml_grammar = f.read()
+
         self.dsl_code = dsl_code
         self.prompt = {}
+        self.parser = Lark(promptml_grammar, start="prompt")
 
     def parse(self):
         """
@@ -86,136 +168,9 @@ class PromptParser:
         """
         Parse the prompt section of the DSL code and extract the prompt content.
         """
-        prompt_pattern = re.compile(r'@prompt\s*(.*?)(@end(?!.*@end))', re.DOTALL | re.MULTILINE)
-        match = prompt_pattern.search(self.dsl_code)
-
-        # (@end(?!.*@end)): This is a positive lookahead assertion that matches the string @end only if it is not followed by another occurrence of @end.
-        # The (?!.*@end) part is a negative lookahead assertion that asserts that there should not be another @end after the current one.
-        if match:
-            prompt_content = match.group(1)
-            self.prompt = self.parse_sections(prompt_content)
-
-    def parse_sections(self, content):
-        """
-        Parse the sections of the prompt content and extract the section content.
-
-        Args:
-            content (str): The content of the prompt section.
-
-        Returns:
-            dict: A dictionary containing the parsed sections of the prompt.
-        """
-        sections = {}
-        section_patterns = {
-            'context': r'@context\s*(.*?)\s*@end',
-            'objective': r'@objective\s*(.*?)\s*@end',
-            'instructions': self.parse_instructions,
-            'examples': self.parse_examples,
-            'constraints': self.parse_constraints,
-            'metadata': self.parse_metadata,
-        }
-
-        for section, pattern in section_patterns.items():
-            if callable(pattern):
-                sections[section] = pattern(content)
-            else:
-                section_pattern = re.compile(pattern, re.DOTALL)
-                match = section_pattern.search(content)
-                if match:
-                    sections[section] = match.group(1).strip()
-
-        return sections
-
-    def parse_instructions(self, content):
-        """ Parse the instructions section of the prompt content and extract the instructions."""
-        instructions_pattern = re.compile(
-            r'@instructions\s*(.*?)\s*(@end(?!.*@end))',
-            re.DOTALL | re.MULTILINE
-        )
-
-        match = instructions_pattern.search(content)
-        if match:
-            instructions_content = match.group(1)
-            steps = []
-            step_pattern = re.compile(r'@step\s*(.*?)\s*@end', re.DOTALL | re.MULTILINE)
-            matches = step_pattern.finditer(instructions_content)
-            for step_match in matches:
-                step = step_match.group(1).strip()
-                steps.append(step)
-            return steps
-        return []
-
-    def parse_examples(self, content):
-        """
-        Parse the examples section of the prompt content and extract the examples.
-
-        Args:
-            content (str): The content of the examples section.
-
-        Returns:
-            list: A list of dictionaries containing the parsed examples.
-        """
-        examples = []
-        example_pattern = re.compile(r'@example\s*(.*?)\s*(@end(?!.*@end))', re.DOTALL | re.MULTILINE)
-        matches = example_pattern.finditer(content)
-        for match in matches:
-            example_content = match.group(1)
-            input_pattern = re.compile(r'@input\s*(.*?)\s*@end', re.DOTALL | re.MULTILINE)
-            output_pattern = re.compile(r'@output\s*(.*?)\s*@end', re.DOTALL | re.MULTILINE)
-            input_match = input_pattern.search(example_content)
-            output_match = output_pattern.search(example_content)
-            if input_match and output_match:
-                example = {
-                    'input': input_match.group(1).strip(),
-                    'output': output_match.group(1).strip(),
-                }
-                examples.append(example)
-        return examples
-
-    def parse_constraints(self, content):
-        """
-        Parse the constraints section of the prompt content and extract the constraints.
-
-        Args:
-            content (str): The content of the constraints section.
-
-        Returns:
-            dict: A dictionary containing the parsed constraints.
-        """
-        constraints = {}
-        length_pattern = re.compile(r'@length\s*min:\s*(\d+)\s*max:\s*(\d+)\s*@end', re.DOTALL)
-        tone_pattern = re.compile(r'@tone\s*(.*?)\s*@end', re.DOTALL)
-        length_match = length_pattern.search(content)
-        tone_match = tone_pattern.search(content)
-        if length_match:
-            constraints['length'] = {
-                'min': int(length_match.group(1)),
-                'max': int(length_match.group(2)),
-            }
-        if tone_match:
-            constraints['tone'] = tone_match.group(1).strip()
-        return constraints
-
-    def parse_metadata(self, content):
-        """
-        Parse the metadata section of the prompt content and extract the metadata.
-
-        Args:
-            content (str): The content of the metadata section.
-
-        Returns:
-            dict: A dictionary containing the parsed metadata.
-        """
-        metadata = {}
-        domain_pattern = re.compile(r'@domain\s*(.*?)\s*@end', re.DOTALL | re.MULTILINE)
-        difficulty_pattern = re.compile(r'@difficulty\s*(.*?)\s*@end', re.DOTALL | re.MULTILINE)
-        domain_match = domain_pattern.search(content)
-        difficulty_match = difficulty_pattern.search(content)
-        if domain_match:
-            metadata['domain'] = domain_match.group(1).strip()
-        if difficulty_match:
-            metadata['difficulty'] = difficulty_match.group(1).strip()
-        return metadata
+        tree = self.parser.parse(self.dsl_code)
+        self.prompt = PromptParser.transformer.transform(tree)
+        return self.prompt
 
     def serialize_json(self, indent=None):
         """ Serialize the prompt data to JSON.
