@@ -43,7 +43,7 @@ The language is simple. You start blocks with `@` section annotation. A section 
 @end
 ```
 
-See [prompt.pml](./promptml/prompt.pml) to see an example.
+See [prompt.pml](./tests/prompt.pml) to see an example.
 
 ## Design
 Regular text prompts are very abstract in nature. Natural languages are very flexible but provides least reliability. How to provide context for an AI system and ask something ? Shouldn't we specify that explicitly.
@@ -67,40 +67,42 @@ from promptml.parser import PromptParser
 
 promptml_code = '''
     @prompt
-    @context
-    This is the context section.
-    @end
+        @context
+            This is the context section.
+        @end
 
-    @objective
-    This is the objective section.
-    @end
+        @objective
+            This is the objective section.
+        @end
 
-    @instructions
-    These are the instructions.
-    @end
+        @instructions
+            @step
+                Step 1
+            @end
+        @end
 
-    @examples
-    @example
-    @input
-    Input example 1
-    @end
-    @output
-    Output example 1
-    @end
-    @end
-    @end
+        @examples
+            @example
+                @input
+                    Input example 1
+                @end
+                @output
+                    Output example 1
+                @end
+            @end
+        @end
 
-    @constraints
-    @length min: 1 max: 10
-    @end
+        @constraints
+            @length min: 1 max: 10
+        @end
 
-    @metadata
-    @domain
-    Domain example
-    @end
-    @difficulty
-    Difficulty example
-    @end
+        @metadata
+            @domain
+                Web Development
+            @end
+            @difficulty
+                Advaned
+            @end
     @end
 '''
 
@@ -111,12 +113,12 @@ print(prompt)
 # Output: {
 #     'context': 'This is the context section.',
 #     'objective': 'This is the objective section.',
-#     'instructions': 'These are the instructions.',
+#     'instructions': ['Step 1'],
 #     'examples': [
 #         {'input': 'Input example 1', 'output': 'Output example 1'}
 #     ],
 #     'constraints': {'length': {'min': 1, 'max': 10}},
-#     'metadata': {'domain': 'Domain example', 'difficulty': 'Difficulty example'}
+#     'metadata': {'domain': 'Web Development', 'difficulty': 'Advanced'}
 # }
 
 ```
