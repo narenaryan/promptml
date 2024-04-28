@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "promptml"
+dynamic = ["version"]
+description = 'A simple, yet elegant markup language for defining AI Prompts as Code (APaC). Built to be used by AI agents to automatically prompt for other AI systems'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = ["artificial-intelligence", "prompt-engineering", "dsl", "language"]
+authors = [
+  { name = "Vidura Labs Inc.", email = "contact@vidura.ai" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/unknown/promptml#readme"
+Issues = "https://github.com/unknown/promptml/issues"
+Source = "https://github.com/unknown/promptml"
+
+[tool.hatch.version]
+path = "src/promptml/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+  "coverage[toml]>=6.5",
+  "pytest",
+]
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+[tool.hatch.envs.types]
+dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/promptml tests}"
+
+[tool.coverage.run]
+source_pkgs = ["promptml", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/promptml/__about__.py",
+]
+
+[tool.coverage.paths]
+promptml = ["src/promptml", "*/promptml/src/promptml"]
+tests = ["tests", "*/promptml/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]

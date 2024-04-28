@@ -1,8 +1,9 @@
 """
 This module provides a PromptParser class for parsing DSL code and extracting prompt information.
 
-The PromptParser class can parse DSL code and extract sections such as context, objective, instructions,
-examples, constraints, and metadata from the code. It uses regular expressions to search for specific
+The PromptParser class can parse DSL code and extract sections such as context, 
+objective, instructions, examples, constraints, and metadata from the code.
+It uses regular expressions to search for specific
 patterns in the DSL code and extract the corresponding content.
 
 Example usage:
@@ -72,6 +73,7 @@ class PromptMLTransformer(Transformer):
     A class for transforming the parsed PromptML code into a structured format.
     """
     def prompt(self, items):
+        """ Extract the prompt content."""
         sections = {}
         tree = items[0]
         for child in tree.children:
@@ -82,28 +84,35 @@ class PromptMLTransformer(Transformer):
         return sections
 
     def context(self, items):
+        """ Extract the context section content."""
         return {"context": items[0].strip()}
 
     def objective(self, items):
+        """ Extract the objective section content."""
         return {"objective": items[0].strip()}
 
     def instructions(self, items):
+        """ Extract the instructions section content."""
         steps = [item.value.strip() for item in items]
         return {"instructions": steps}
 
     def instruction(self, items):
+        """ Extract the instruction content."""
         return items[0]
 
     def examples(self, items):
-        examples = [example for example in items]
+        """ Extract the examples section content."""
+        examples = list(items)
         return {"examples": examples}
 
     def example(self, items):
+        """ Extract the example content."""
         input_text = items[0].children[0].strip()
         output_text = items[1].children[0].strip()
         return {"input": input_text, "output": output_text}
 
     def constraints(self, items):
+        """ Extract the constraints section content."""
         constraints = {}
         for item in items:
             constraints.update(item.children[0])
@@ -111,14 +120,17 @@ class PromptMLTransformer(Transformer):
         return {"constraints": constraints}
 
     def length(self, items):
+        """ Extract the length constraint content."""
         min_length = int(items[0])
         max_length = int(items[1])
         return {"length": {"min": min_length, "max": max_length}}
 
     def tone(self, items):
+        """ Extract the tone constraint content."""
         return {"tone": items[0].strip()}
 
     def metadata(self, items):
+        """ Extract the metadata section content."""
         metadata = {}
         for item in items:
             child = item.children[0]
@@ -129,28 +141,31 @@ class PromptMLTransformer(Transformer):
         return {"metadata": metadata}
 
     def domain(self, items):
+        """ Extract the domain metadata content."""
         return {"domain": items[0]}
 
     def difficulty(self, items):
+        """ Extract the difficulty metadata content."""
         return {"difficulty": items[0]}
 
     def text(self, items):
+        """ Extract the text content."""
         return items[0]
 
 class PromptParser:
+    """A class for parsing prompt markup language code and extract information.
+    """
     transformer = PromptMLTransformer()
-    """
-    A class for parsing prompt markup language code and extract information.
-    """
+
     # Define the grammar for the prompt markup language.
-    def __init__(self, dsl_code):
+    def __init__(self, code: str):
         promptml_grammar = None
         # get current directory
         dir_path = os.path.abspath(os.path.dirname(__file__))
         with open(f'{dir_path}/grammar.lark', 'r', encoding="utf-8") as f:
             promptml_grammar = f.read()
 
-        self.dsl_code = dsl_code
+        self.code = code
         self.prompt = {}
         self.parser = Lark(promptml_grammar, start="prompt")
 
@@ -168,7 +183,7 @@ class PromptParser:
         """
         Parse the prompt section of the DSL code and extract the prompt content.
         """
-        tree = self.parser.parse(self.dsl_code)
+        tree = self.parser.parse(self.code)
         self.prompt = PromptParser.transformer.transform(tree)
         return self.prompt
 
