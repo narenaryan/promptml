@@ -1,5 +1,9 @@
-# PromptML
+# PromptML (Prompt Markup Language)
 A simple, yet elegant markup language for defining AI Prompts as Code (APaC). Built to be used by AI agents to automatically prompt for other AI systems
+
+The architecture is shown as below. A `PromptML` prompt can be version controlled like any other code file. Using promptml parser package, one can easily generate a natural language prompt, and execute it against a LLM. See examples for using promptml library package: [open examples](./examples/)
+
+![prompt-ml architecture](./prompt-github.png)
 
 ## Why PromptML ?
 PromptML is built to provide a way for prompt engineers to define the AI prompts in a deterministic way. This is a Domain Specific Language (DSL) which defines characteristics of a prompt including context, objective, instructions and it's metadata.
@@ -7,7 +11,6 @@ A regular prompt is an amalgamation of all these aspects into one entity. Prompt
 
 The language grammar can be found here: [grammar.lark](./src/promptml/grammar.lark)
 
-We built few examples for using promptml library here: [examples](./examples/)
 
 ## How PromptML looks ?
 The language is simple. You start blocks with `@` section annotation. A section ends with `@end` marker. Comments are started with `#` key. The prompt files ends with `.pml` extension.
@@ -50,11 +53,21 @@ See [prompt.pml](./prompt.pml) to see an example.
 Regular text prompts are very abstract in nature. Natural languages are very flexible but provides least reliability. How to provide context for an AI system and ask something ? Shouldn't we specify that explicitly.
 PromptML is an attempt to make contents of a prompt explicit with a simple language.
 
-Language grammar is influenced by XML & Ruby, so if you know any one of them, you will feel very comfortable.
+## Core tenets of PromptML
+Below are the qualities PromptML brings to prompt engineering domain:
 
-## Why not XML, YAML, or JSON for PromptML ?
+1. Standardization instead of fragmentation
+2. Collaboration instead of confusion
+3. Enabling version control-ability
+4. Promoting verbosity for better results
+
+
+## Why not use XML, YAML, or JSON for PromptML ?
 First, XML, JSON, and YAML are not DSL languages. They are data formats that can represent any form of data. Second, generative AI needs a strict, yet flexible data language with fixed constraints which evolve along with the domain.
+
 PromptML is built exactly to solve those two issues.
+
+Language grammar is influenced by XML & Ruby, so if you know any one of them, you will feel very comfortable writing prompts in PromptML.
 
 ## Usage
 
@@ -124,3 +137,12 @@ print(prompt)
 # }
 
 ```
+
+## TODO
+We are currently working on:
+
+1. Supporting more annotations (Ex: temperature, top_p)
+2. `VSCode` syntax highlighting support
+3. Publishing `promptml` package to PyPi
+4. Add more unit tests
+5. Add support for `XML` & `YAML` serialization
