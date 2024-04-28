@@ -5,6 +5,10 @@ A simple, yet elegant markup language for defining AI Prompts as Code (APaC). Bu
 PromptML is built to provide a way for prompt engineers to define the AI prompts in a deterministic way. This is a Domain Specific Language (DSL) which defines characteristics of a prompt including context, objective, instructions and it's metadata.
 A regular prompt is an amalgamation of all these aspects into one entity. PromptML splits it into multiple sections and makes the information explicit.
 
+The language grammar can be found here: [grammar.lark](./src/promptml/grammar.lark)
+
+We built few examples for using promptml library here: [examples](./examples/)
+
 ## How PromptML looks ?
 The language is simple. You start blocks with `@` section annotation. A section ends with `@end` marker. Comments are started with `#` key. The prompt files ends with `.pml` extension.
 
