@@ -1,0 +1,12 @@
+Context: {{ prompt.context }}
+
+Follow the below instructions step-by-step for objective:
+{% for instruction in prompt.instructions -%}
+    {{loop.index}}. {{ instruction }}
+{% endfor %}
+
+Audience: {{ prompt.metadata.domain }}
+Task Difficulty: {{ prompt.metadata.difficulty }}
+Reply in tone: {{ prompt.constraints.tone }}
+
+Objective: {{ prompt.objective }}
