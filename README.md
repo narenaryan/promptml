@@ -37,9 +37,6 @@ The language is simple. You start blocks with `@` section annotation. A section 
     @metadata
     # Add prompt metadata here
     @end
-    @body
-    # Actual prompt
-    @end
 @end
 ```
 
@@ -103,6 +100,7 @@ promptml_code = '''
             @difficulty
                 Advaned
             @end
+        @end
     @end
 '''
 
