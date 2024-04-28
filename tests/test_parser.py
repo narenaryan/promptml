@@ -1,7 +1,7 @@
 """ Test cases for prompt parser 
 """
 
-from promptml.parser import PromptParserFromFile
+from src.promptml.parser import PromptParserFromFile
 from unittest import TestCase
 
 class TestPromptParser(TestCase):
