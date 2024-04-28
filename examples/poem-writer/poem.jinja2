@@ -1,0 +1,20 @@
+Context: {{ prompt.context }}
+{% if prompt.instructions|length > 1 %}
+    Follow the below instructions step-by-step for objective:
+    {% for instruction in prompt.instructions -%}
+        {{loop.index}}. {{ instruction }}
+    {% endfor %}
+{% endif %}
+
+Examples:
+{% for example in prompt.examples -%}
+    {%- for k in example %}
+        {{k}}: {{ example[k] }}
+    {%- endfor %}
+{% endfor %}
+
+Audience: {{ prompt.metadata.domain }}
+Task Difficulty: {{ prompt.metadata.difficulty }}
+Reply in tone: {{ prompt.constraints.tone }}
+
+Objective: {{ prompt.objective }}
