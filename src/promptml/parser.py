@@ -117,22 +117,32 @@ class PromptMLTransformer(Transformer):
         return var_map
 
     def metadata(self, items):
-        """ Extract the metadata section content."""
+        """
+        Extracts the metadata section content.
+
+        Args:
+            items (list): A list of items representing the metadata section content.
+
+        Returns:
+            dict: A dictionary containing the extracted metadata section content.
+        """
         metadata = {}
 
         for item in items:
             key = item.children[0].strip()
             if key:
                 prop_type = item.children[1].type
+                value = item.children[1].strip()
+
                 if prop_type == "NUMBER":
                     try:
-                        metadata[key] = int(item.children[1].strip())
+                        value = int(value)
                     except ValueError:
-                        metadata[key] = float(item.children[1].strip())
+                        value = float(value)
                 elif prop_type == "STRING":
-                    metadata[key] = item.children[1].strip().strip("\"").strip("\'")
-                else:
-                    metadata[key] = item.children[1].strip()
+                    value = value.strip("\"").strip("\'")
+
+                metadata[key] = value
 
         return {"metadata": metadata}
 
@@ -197,7 +207,14 @@ class PromptParserFromFile(PromptParser):
     """
     A subclass of PromptParser that reads DSL code from a file.
     """
-    def __init__(self, file_path):
+    def __init__(self, file_path: str):
+        """
+        Initializes the PromptParserFromFile object by reading the DSL code from the specified file path
+        and passing it to the parent class constructor.
+
+        Args:
+            file_path (str): The path to the DSL code file.
+        """
         with open(file_path, 'r', encoding='utf-8') as f:
             dsl_code = f.read()
         super().__init__(dsl_code)
