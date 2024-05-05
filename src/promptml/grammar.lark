@@ -1,6 +1,11 @@
-prompt: "@prompt" sections "@end"
+?start: block+
+block:  prompt | var_block
 
-sections: section+
+var_block: "@vars" assignment* "@end"
+assignment: VAR_NAME "=" (NUMBER | STRING | FLOAT)
+VAR_NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+
+prompt: "@prompt" section* "@end"
 
 section: context
         | objective
@@ -12,27 +17,30 @@ section: context
 context: "@context" text "@end"
 objective: "@objective" text "@end"
 
-instructions: "@instructions" instruction+ "@end"
+instructions: "@instructions" instruction* "@end"
 instruction: "@step" text "@end"
 
-examples: "@examples" example+ "@end"
+examples: "@examples" example* "@end"
 example: "@example" input output "@end"
 input: "@input" text "@end"
 output: "@output" text "@end"
 
-constraints: "@constraints" constraint+ "@end"
+constraints: "@constraints" constraint* "@end"
 constraint: length | tone
 length: "@length" "min:" INT "max:" INT "@end"
 tone: "@tone" text "@end"
 
-metadata: "@metadata" meta+ "@end"
-meta: domain | difficulty
-domain: "@domain" text "@end"
-difficulty: "@difficulty" text "@end"
+metadata: "@metadata" prop* "@end"
+prop: PROP_NAME ":" (NUMBER | STRING )
+PROP_NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
 
-text: /[^@]+/ 
+STRING: /'[^']*'/ | /"[^"]*"/
+text: /[^@]+/
 
 %import common.WS
+%import common.NUMBER
+%import common.STRING
+%import common.FLOAT
 %ignore /\#.*/  // Ignore comments
 %ignore WS
 %import common.INT

@@ -1,8 +1,8 @@
-# Prompt Description for a task
+# Define prompt
 @prompt
   # Context is used to provide background information or context for the task
   @context
-    You are a highly skilled and experienced software developer with expertise in various programming languages and frameworks. You have been tasked with creating a new web application for a social media platform.
+    You are a $role with expertise in various programming languages and frameworks. You have been tasked with creating a new web application for a social media platform.
   @end
 
   # Objective is used to define the main goal or objective of the task
@@ -36,7 +36,7 @@
   # Examples are used to provide sample inputs and outputs for the task
   @examples
     @example
-      @input 
+      @input
         Design the core architecture and components for a large-scale e-commerce web application.
       @end
       @output
@@ -44,10 +44,10 @@
       @end
     @end
     @example
-      @input  
+      @input
         Outline main components for a large-scale e-commerce web application.
       @end
-      @output 
+      @output
         Product Catalog, User Management, Order Processing, Payment Gateway, Search Engine, Recommendation Engine are the main components of a large-scale e-commerce web application...
       @end
     @end
@@ -60,13 +60,22 @@
       max: 3000
     @end
     @tone
-        Professional and technical 
+        Professional and technical
     @end
   @end
 
-  # Metadata includes information such as domain, difficulty, skills, and tags
+  # Metadata includes information such as domain, difficulty, custom props, etc.
   @metadata
-    @domain Software Engineering, Web Development @end
-    @difficulty Advanced @end
+    domain: 'Software Engineering'
+    difficulty: 'Advanced'
+    top_p: 0.6
+    temperature: 0.5
+    n: 1
+    method: 'greedy'
   @end
+@end
+
+# Define prompt variables
+@vars
+    role = 'highly skilled and experienced software developer'
 @end

@@ -1,70 +1,23 @@
 """
 This module provides a PromptParser class for parsing DSL code and extracting prompt information.
 
-The PromptParser class can parse DSL code and extract sections such as context, 
+The PromptParser class can parse DSL code and extract sections such as context,
 objective, instructions, examples, constraints, and metadata from the code.
 It uses regular expressions to search for specific
 patterns in the DSL code and extract the corresponding content.
 
 Example usage:
     dsl_code = '''
-        @prompt
-        @context
-        This is the context section.
-        @end
-
-        @objective
-        This is the objective section.
-        @end
-
-        @instructions
-        These are the instructions.
-        @end
-
-        @examples
-        @example
-        @input
-        Input example 1
-        @end
-        @output
-        Output example 1
-        @end
-        @end
-        @end
-
-        @constraints
-        @length min: 1 max: 10
-        @end
-
-        @metadata
-        @domain
-        Domain example
-        @end
-        @difficulty
-        Difficulty example
-        @end
-        @end
+        code...
     '''
 
     parser = PromptParser(dsl_code)
     prompt = parser.parse()
-
-    print(prompt)
-    # Output: {
-    #     'context': 'This is the context section.',
-    #     'objective': 'This is the objective section.',
-    #     'instructions': 'These are the instructions.',
-    #     'examples': [
-    #         {'input': 'Input example 1', 'output': 'Output example 1'}
-    #     ],
-    #     'constraints': {'length': {'min': 1, 'max': 10}},
-    #     'metadata': {'domain': 'Domain example', 'difficulty': 'Difficulty example'}
-    # }
 """
 
 import json
 import os
-
+import re
 
 from lark import Lark, Transformer
 
@@ -72,14 +25,37 @@ class PromptMLTransformer(Transformer):
     """
     A class for transforming the parsed PromptML code into a structured format.
     """
+
+    def start(self, items):
+        """ Extract the start section content."""
+
+        # Variables are in child 1, replace context with variables $x to x -> value using regex
+        prompt = items[0]
+        context = prompt["context"]
+        objective = prompt["objective"]
+        vars_ = items[1]
+
+        for k,v in vars_.items():
+            context = re.sub(r'\$' + k, v, context)
+            objective = re.sub(r'\$' + k, v, objective)
+
+        prompt["context"] = context
+        prompt["objective"] = objective
+        return prompt
+
+    def block(self, items):
+        """ Extract the block content."""
+        return items[0]
+
     def prompt(self, items):
         """ Extract the prompt content."""
         sections = {}
-        tree = items[0]
-        for child in tree.children:
-            if child.data == "section":
+        for child in items:
+            if hasattr(child, "data") and child.data == "section":
                 data = child.children[0]
                 sections.update(data)
+            else:
+                sections.update(child)
 
         return sections
 
@@ -129,14 +105,34 @@ class PromptMLTransformer(Transformer):
         """ Extract the tone constraint content."""
         return {"tone": items[0].strip()}
 
+    def var_block(self, items):
+        """ Extract the variable block content."""
+        var_map = {}
+
+        for item in items:
+            var_symbol = item.children[0].strip()
+            var_value = item.children[1].strip()
+            var_map[var_symbol] = var_value
+
+        return var_map
+
     def metadata(self, items):
         """ Extract the metadata section content."""
         metadata = {}
-        for item in items:
-            child = item.children[0]
 
-            for k,v in child.items():
-                metadata[k] = v.strip()
+        for item in items:
+            key = item.children[0].strip()
+            if key:
+                prop_type = item.children[1].type
+                if prop_type == "NUMBER":
+                    try:
+                        metadata[key] = int(item.children[1].strip())
+                    except ValueError:
+                        metadata[key] = float(item.children[1].strip())
+                elif prop_type == "STRING":
+                    metadata[key] = item.children[1].strip().strip("\"").strip("\'")
+                else:
+                    metadata[key] = item.children[1].strip()
 
         return {"metadata": metadata}
 
@@ -167,7 +163,7 @@ class PromptParser:
 
         self.code = code
         self.prompt = {}
-        self.parser = Lark(promptml_grammar, start="prompt")
+        self.parser = Lark(promptml_grammar)
 
     def parse(self):
         """
