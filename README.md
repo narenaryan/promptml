@@ -1,5 +1,7 @@
 # PromptML (Prompt Markup Language)
-A simple, yet elegant markup language for defining AI Prompts as Code (APaC). Built to be used by AI agents to automatically prompt for other AI systems
+![](./promptml.jpeg)
+
+<i>A simple, yet elegant markup language for defining AI Prompts as Code (APaC). Built to be used by AI agents to automatically prompt for other AI systems.</i>
 
 The architecture is shown as below. A `PromptML` prompt can be version controlled like any other code file. Using promptml parser package, one can easily generate a natural language prompt, and execute it against a LLM. See examples for using promptml library package: [open examples](./examples/)
 
