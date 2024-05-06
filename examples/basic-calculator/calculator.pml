@@ -21,14 +21,11 @@
         @tone
             Friendly
         @end
-    @end
-    @metadata
-        @domain
-            Education
-        @end
-
         @difficulty
             Beginner
         @end
+    @end
+    @metadata
+        domain: 'Mathematics'
     @end
 @end
