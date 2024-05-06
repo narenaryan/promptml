@@ -13,8 +13,7 @@ Examples:
     {%- endfor %}
 {% endfor %}
 
-Audience: {{ prompt.metadata.domain }}
-Task Difficulty: {{ prompt.metadata.difficulty }}
+Task Difficulty: {{ prompt.constraints.difficulty }}
 Reply in tone: {{ prompt.constraints.tone }}
 
 Objective: {{ prompt.objective }}
