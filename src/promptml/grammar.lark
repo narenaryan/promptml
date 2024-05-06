@@ -14,6 +14,7 @@ section: context
         | instructions
         | examples
         | constraints
+        | category
         | metadata
 
 context: "@context" text "@end"
@@ -28,9 +29,12 @@ input: "@input" text "@end"
 output: "@output" text "@end"
 
 constraints: "@constraints" constraint* "@end"
-constraint: length | tone
+constraint: length | tone | difficulty
+difficulty: "@difficulty" text "@end"
 length: "@length" "min:" INT "max:" INT "@end"
 tone: "@tone" text "@end"
+
+category: "@category" text "@end"
 
 metadata: "@metadata" prop* "@end"
 prop: PROP_NAME ":" (NUMBER | STRING )

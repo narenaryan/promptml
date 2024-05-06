@@ -1,11 +1,11 @@
-""" Test cases for prompt parser 
+""" Test cases for prompt parser
 """
 
 from src.promptml.parser import PromptParserFromFile
 from unittest import TestCase
 
 class TestPromptParser(TestCase):
-    # read prompt from prompt.aiml file
+    # read prompt from prompt.pml file
 
     def setUp(self):
         self.prompt_parser = PromptParserFromFile('prompt.pml')
@@ -57,14 +57,17 @@ class TestPromptParser(TestCase):
                     "min": 1000,
                     "max": 3000
                 },
-                "tone": "Professional and technical"
+                "tone": "Professional and technical",
+                "difficulty": "Advanced"
             }
         )
 
         self.assertEqual(
             res["metadata"],
             {
-                "domain": "Software Engineering, Web Development",
-                "difficulty": "Advanced"
+                "top_p": 0.6,
+                "temperature": 0.5,
+                "n": 1,
+                "internal": "true"
             }
         )

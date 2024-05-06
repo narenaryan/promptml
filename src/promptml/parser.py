@@ -8,7 +8,7 @@ patterns in the DSL code and extract the corresponding content.
 
 Example usage:
     dsl_code = '''
-        code...
+        ...
     '''
 
     parser = PromptParser(dsl_code)
@@ -23,29 +23,40 @@ from lark import Lark, Transformer
 
 class PromptMLTransformer(Transformer):
     """
-    A class for transforming the parsed PromptML code into a structured format.
+    A class for transforming the parsed PromptML tree into a Python dictionary.
     """
 
     def start(self, items):
         """ Extract the start section content."""
+        prompt = {}
+        vars_ = {}
+        for item in items:
+            if item["type"] == "vars":
+                vars_ = item["data"]
+            elif item["type"] == "prompt":
+                prompt = item["data"]
 
-        # Variables are in child 1, replace context with variables $x to x -> value using regex
-        prompt = items[0]
-        context = prompt["context"]
+        # context seems to be a keyword in Python, so we'll use context_ instead
+        context_ = prompt["context"]
         objective = prompt["objective"]
-        vars_ = items[1]
 
+        # Replace variables in context and objective with values
         for k,v in vars_.items():
-            context = re.sub(r'\$' + k, v, context)
-            objective = re.sub(r'\$' + k, v, objective)
+            context_ = context_.replace(r'$' + k, v.replace("'", '').replace('"', ''))
+            objective = objective.replace(r'$' + k, v.replace("'", '').replace('"', ''))
 
-        prompt["context"] = context
+        prompt["context"] = context_
         prompt["objective"] = objective
+
         return prompt
 
     def block(self, items):
         """ Extract the block content."""
         return items[0]
+
+    def category(self, items):
+        """ Extract the category content."""
+        return {"category": items[0].strip()}
 
     def prompt(self, items):
         """ Extract the prompt content."""
@@ -57,7 +68,7 @@ class PromptMLTransformer(Transformer):
             else:
                 sections.update(child)
 
-        return sections
+        return {"type": "prompt", "data": sections}
 
     def context(self, items):
         """ Extract the context section content."""
@@ -105,6 +116,10 @@ class PromptMLTransformer(Transformer):
         """ Extract the tone constraint content."""
         return {"tone": items[0].strip()}
 
+    def difficulty(self, items):
+        """ Extract the difficulty constraint content."""
+        return {"difficulty": items[0].strip()}
+
     def var_block(self, items):
         """ Extract the variable block content."""
         var_map = {}
@@ -114,7 +129,7 @@ class PromptMLTransformer(Transformer):
             var_value = item.children[1].strip()
             var_map[var_symbol] = var_value
 
-        return var_map
+        return {"type": "vars", "data": var_map}
 
     def metadata(self, items):
         """
@@ -146,17 +161,10 @@ class PromptMLTransformer(Transformer):
 
         return {"metadata": metadata}
 
-    def domain(self, items):
-        """ Extract the domain metadata content."""
-        return {"domain": items[0]}
-
-    def difficulty(self, items):
-        """ Extract the difficulty metadata content."""
-        return {"difficulty": items[0]}
-
     def text(self, items):
         """ Extract the text content."""
         return items[0]
+
 
 class PromptParser:
     """A class for parsing prompt markup language code and extract information.
@@ -202,6 +210,7 @@ class PromptParser:
         """ Deserialize the prompt data from JSON.
         """
         self.prompt = json.loads(serialized_data)
+
 
 class PromptParserFromFile(PromptParser):
     """
