@@ -5,7 +5,7 @@ This is an example of how to use PromptML to generate final Generative AI prompt
 1. Parse `poem.pml` using promptml parser to generate a prompt context
 2. Pass context to Jinja2 environment with a template called `poem.jinja2`
 
-This will print an output of below: 
+This will print an output of below:
 
 ```txt
 Context: You are a master poem writer who is creative and imaginative. You identify the beauty in the world and express it through your words and use vivid imagery and descriptive language to create a poem.
@@ -24,17 +24,16 @@ Examples:
                     And the hunter home from the hill.
 
         input: My Heart Leaps Up
-        output: My heart leaps up when I behold 
+        output: My heart leaps up when I behold
                     A rainbow in the sky:
-                So was it when my life began; 
-                So is it now I am a man; 
-                So be it when I shall grow old, 
+                So was it when my life began;
+                So is it now I am a man;
+                So be it when I shall grow old,
                     Or let me die!
                 The Child is father of the Man;
                 And I could wish my days to be
                 Bound each to each by natural piety.
 
-Audience: Arts
 Task Difficulty: Beginner
 Reply in tone: Melancholic
 
@@ -46,26 +45,29 @@ This is the final prompt to be used for Generative AI systems.
 ## Running instructions
 
 1. Create a virtual environment in this directory:
-   
-   ```bash 
+
+   ```bash
     python3 -m venv .venv
    ```
+
 2. Activate virtual environment
 
-    ```bash
-    source .venv/bin/activate
-    ```
+   ```bash
+   source .venv/bin/activate
+   ```
+
 3. Install Jinja2 and promptml
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-    Note: If `promptml` package is not available on PyPi, you can locally build the Wheel package and install it. See [BUILD.md](../../BUILD.md) file for instructions.
+   Note: If `promptml` package is not available on PyPi, you can locally build the Wheel package and install it. See [BUILD.md](../../BUILD.md) file for instructions.
 
 4. Run the program
 
-    ```bash
-    python main.py
-    ```
+   ```bash
+   python main.py
+   ```
+
 5. Play around with `poem.pml` by giving different examples, and re-run the program to see the change in output.
