@@ -1,87 +1,74 @@
 """
 This module provides a PromptParser class for parsing DSL code and extracting prompt information.
 
-The PromptParser class can parse DSL code and extract sections such as context, 
+The PromptParser class can parse DSL code and extract sections such as context,
 objective, instructions, examples, constraints, and metadata from the code.
 It uses regular expressions to search for specific
 patterns in the DSL code and extract the corresponding content.
 
 Example usage:
     dsl_code = '''
-        @prompt
-        @context
-        This is the context section.
-        @end
-
-        @objective
-        This is the objective section.
-        @end
-
-        @instructions
-        These are the instructions.
-        @end
-
-        @examples
-        @example
-        @input
-        Input example 1
-        @end
-        @output
-        Output example 1
-        @end
-        @end
-        @end
-
-        @constraints
-        @length min: 1 max: 10
-        @end
-
-        @metadata
-        @domain
-        Domain example
-        @end
-        @difficulty
-        Difficulty example
-        @end
-        @end
+        ...
     '''
 
     parser = PromptParser(dsl_code)
     prompt = parser.parse()
-
-    print(prompt)
-    # Output: {
-    #     'context': 'This is the context section.',
-    #     'objective': 'This is the objective section.',
-    #     'instructions': 'These are the instructions.',
-    #     'examples': [
-    #         {'input': 'Input example 1', 'output': 'Output example 1'}
-    #     ],
-    #     'constraints': {'length': {'min': 1, 'max': 10}},
-    #     'metadata': {'domain': 'Domain example', 'difficulty': 'Difficulty example'}
-    # }
 """
 
 import json
 import os
-
+import re
 
 from lark import Lark, Transformer
 
 class PromptMLTransformer(Transformer):
     """
-    A class for transforming the parsed PromptML code into a structured format.
+    A class for transforming the parsed PromptML tree into a Python dictionary.
     """
+
+    def start(self, items):
+        """ Extract the start section content."""
+        prompt = {}
+        vars_ = {}
+        for item in items:
+            if item["type"] == "vars":
+                vars_ = item["data"]
+            elif item["type"] == "prompt":
+                prompt = item["data"]
+
+        # context seems to be a keyword in Python, so we'll use context_ instead
+        context_ = prompt["context"]
+        objective = prompt["objective"]
+
+        # Replace variables in context and objective with values
+        for k,v in vars_.items():
+            context_ = context_.replace(r'$' + k, v.replace("'", '').replace('"', ''))
+            objective = objective.replace(r'$' + k, v.replace("'", '').replace('"', ''))
+
+        prompt["context"] = context_
+        prompt["objective"] = objective
+
+        return prompt
+
+    def block(self, items):
+        """ Extract the block content."""
+        return items[0]
+
+    def category(self, items):
+        """ Extract the category content."""
+        return {"category": items[0].strip()}
+
     def prompt(self, items):
         """ Extract the prompt content."""
         sections = {}
-        tree = items[0]
-        for child in tree.children:
-            if child.data == "section":
+        for child in items:
+            if hasattr(child, "data") and child.data == "section":
                 data = child.children[0]
                 sections.update(data)
+            else:
+                sections.update(child)
 
-        return sections
+        return {"type": "prompt", "data": sections}
 
     def context(self, items):
         """ Extract the context section content."""
@@ -129,28 +116,55 @@ class PromptMLTransformer(Transformer):
         """ Extract the tone constraint content."""
         return {"tone": items[0].strip()}
 
-    def metadata(self, items):
-        """ Extract the metadata section content."""
-        metadata = {}
-        for item in items:
-            child = item.children[0]
+    def difficulty(self, items):
+        """ Extract the difficulty constraint content."""
+        return {"difficulty": items[0].strip()}
 
-            for k,v in child.items():
-                metadata[k] = v.strip()
+    def var_block(self, items):
+        """ Extract the variable block content."""
+        var_map = {}
+
+        for item in items:
+            var_symbol = item.children[0].strip()
+            var_value = item.children[1].strip()
+            var_map[var_symbol] = var_value
+
+        return {"type": "vars", "data": var_map}
+
+    def metadata(self, items):
+        """
+        Extracts the metadata section content.
+
+        Args:
+            items (list): A list of items representing the metadata section content.
+
+        Returns:
+            dict: A dictionary containing the extracted metadata section content.
+        """
+        metadata = {}
+
+        for item in items:
+            key = item.children[0].strip()
+            if key:
+                prop_type = item.children[1].type
+                value = item.children[1].strip()
+
+                if prop_type == "NUMBER":
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        value = float(value)
+                elif prop_type == "STRING":
+                    value = value.strip("\"").strip("\'")
+
+                metadata[key] = value
 
         return {"metadata": metadata}
-
-    def domain(self, items):
-        """ Extract the domain metadata content."""
-        return {"domain": items[0]}
-
-    def difficulty(self, items):
-        """ Extract the difficulty metadata content."""
-        return {"difficulty": items[0]}
 
     def text(self, items):
         """ Extract the text content."""
         return items[0]
+
 
 class PromptParser:
     """A class for parsing prompt markup language code and extract information.
@@ -167,7 +181,7 @@ class PromptParser:
 
         self.code = code
         self.prompt = {}
-        self.parser = Lark(promptml_grammar, start="prompt")
+        self.parser = Lark(promptml_grammar)
 
     def parse(self):
         """
@@ -197,11 +211,19 @@ class PromptParser:
         """
         self.prompt = json.loads(serialized_data)
 
+
 class PromptParserFromFile(PromptParser):
     """
     A subclass of PromptParser that reads DSL code from a file.
     """
-    def __init__(self, file_path):
+    def __init__(self, file_path: str):
+        """
+        Initializes the PromptParserFromFile object by reading the DSL code from the specified file path
+        and passing it to the parent class constructor.
+
+        Args:
+            file_path (str): The path to the DSL code file.
+        """
         with open(file_path, 'r', encoding='utf-8') as f:
             dsl_code = f.read()
         super().__init__(dsl_code)

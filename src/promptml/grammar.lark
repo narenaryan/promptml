@@ -1,38 +1,54 @@
-prompt: "@prompt" sections "@end"
+# PromptML Grammar #
 
-sections: section+
+start: block+
+block:  prompt | var_block
+
+var_block: "@vars" assignment* "@end"
+assignment: VAR_NAME "=" (NUMBER | STRING | FLOAT)
+VAR_NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+
+prompt: "@prompt" section* "@end"
 
 section: context
         | objective
         | instructions
         | examples
         | constraints
+        | category
         | metadata
 
 context: "@context" text "@end"
 objective: "@objective" text "@end"
 
-instructions: "@instructions" instruction+ "@end"
+instructions: "@instructions" instruction* "@end"
 instruction: "@step" text "@end"
 
-examples: "@examples" example+ "@end"
+examples: "@examples" example* "@end"
 example: "@example" input output "@end"
 input: "@input" text "@end"
 output: "@output" text "@end"
 
-constraints: "@constraints" constraint+ "@end"
-constraint: length | tone
+constraints: "@constraints" constraint* "@end"
+constraint: length | tone | difficulty
+difficulty: "@difficulty" text "@end"
 length: "@length" "min:" INT "max:" INT "@end"
 tone: "@tone" text "@end"
 
-metadata: "@metadata" meta+ "@end"
-meta: domain | difficulty
-domain: "@domain" text "@end"
-difficulty: "@difficulty" text "@end"
+category: "@category" text "@end"
 
-text: /[^@]+/ 
+metadata: "@metadata" prop* "@end"
+prop: PROP_NAME ":" (NUMBER | STRING )
+PROP_NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
 
+# Token Definitions #
+STRING: /'[^']*'/ | /"[^"]*"/
+text: /[^@]+/
+
+# Ignored Tokens #
 %import common.WS
+%import common.NUMBER
+%import common.STRING
+%import common.FLOAT
 %ignore /\#.*/  // Ignore comments
 %ignore WS
 %import common.INT
