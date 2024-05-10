@@ -7,7 +7,7 @@
     @end
     @examples
         @example
-            @input 
+            @input
                 Requiem
             @end
             @output
@@ -28,11 +28,11 @@
             @end
 
             @output
-                My heart leaps up when I behold 
+                My heart leaps up when I behold
                     A rainbow in the sky:
-                So was it when my life began; 
-                So is it now I am a man; 
-                So be it when I shall grow old, 
+                So was it when my life began;
+                So is it now I am a man;
+                So be it when I shall grow old,
                     Or let me die!
                 The Child is father of the Man;
                 And I could wish my days to be
@@ -48,14 +48,11 @@
         @tone
             Melancholic
         @end
-    @end
-    @metadata
-        @domain
-            Arts
-        @end
-
         @difficulty
             Beginner
         @end
+    @end
+    @category
+        Poem
     @end
 @end
