@@ -9,9 +9,10 @@ description = 'A simple, yet elegant markup language for defining AI Prompts as 
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
-keywords = ["artificial-intelligence", "prompt-engineering", "dsl", "language"]
+keywords = ["artificial-intelligence", "prompt-engineering", "dsl", "language", "generative-ai"]
 authors = [
   { name = "Vidura Labs Inc.", email = "contact@vidura.ai" },
+  { name = "Naren Yellavula", email = "naren.yellavula@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -27,9 +28,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/promptml#readme"
-Issues = "https://github.com/unknown/promptml/issues"
-Source = "https://github.com/unknown/promptml"
+Documentation = "https://github.com/narenaryan/promptml/blob/main/README.md"
+Issues = "https://github.com/narenaryan/promptml/issues"
+Source = "https://github.com/narenaryan/promptml/"
 
 [tool.hatch.version]
 path = "src/promptml/__about__.py"
