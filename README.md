@@ -1,6 +1,7 @@
 # PromptML (Prompt Markup Language)
 
-![](./promptml.jpeg)
+![](./logo.png![logo](https://github.com/narenaryan/promptml/assets/5425726/8dfa0acf-f252-4106-9cb1-330b96a555e5)
+)
 
 <i>A simple, yet elegant markup language for defining AI Prompts as Code (APaC). Built to be used by AI agents to automatically prompt for other AI systems.</i>
 
