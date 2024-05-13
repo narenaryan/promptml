@@ -1,13 +1,9 @@
 # PromptML (Prompt Markup Language)
 
-![](./logo.png![logo](https://github.com/narenaryan/promptml/assets/5425726/8dfa0acf-f252-4106-9cb1-330b96a555e5)
-)
+![logo](./logo.png)
 
 <i>A simple, yet elegant markup language for defining AI Prompts as Code (APaC). Built to be used by AI agents to automatically prompt for other AI systems.</i>
 
-The architecture is shown as below. A `PromptML` prompt can be version controlled like any other code file. Using promptml parser package, one can easily generate a natural language prompt, and execute it against a LLM. See examples for using promptml library package: [open examples](./examples/)
-
-![prompt-ml architecture](./prompt-github.png)
 
 ## Why PromptML ?
 
@@ -185,8 +181,6 @@ You can define variables in the promptML file and use them in the prompt `contex
 
 We are currently working on:
 
-1. Supporting more annotations (Ex: temperature, top_p)
-2. `VSCode` syntax highlighting support
-3. Publishing `promptml` package to PyPi
-4. Add more unit tests
-5. Add support for `XML` & `YAML` serialization
+1. `VSCode` syntax highlighting support
+2. Add more unit tests
+3. Add support for `XML` & `YAML` serialization
