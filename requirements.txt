@@ -1,1 +1,2 @@
-lark
+lark==1.1.9
+PyYAML==6.0.1

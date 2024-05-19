@@ -15,11 +15,9 @@ Example usage:
     prompt = parser.parse()
 """
 
-import json
 import os
-import re
-
 from lark import Lark, Transformer
+from .serializer import SerializerFactory
 
 class PromptMLTransformer(Transformer):
     """
@@ -182,6 +180,9 @@ class PromptParser:
         self.code = code
         self.prompt = {}
         self.parser = Lark(promptml_grammar)
+        self.xml_serializer = SerializerFactory.create_serializer("xml")
+        self.json_serializer = SerializerFactory.create_serializer("json")
+        self.yaml_serializer = SerializerFactory.create_serializer("yaml")
 
     def parse(self):
         """
@@ -201,16 +202,20 @@ class PromptParser:
         self.prompt = PromptParser.transformer.transform(tree)
         return self.prompt
 
-    def serialize_json(self, indent=None):
+    def to_json(self, indent=None):
         """ Serialize the prompt data to JSON.
         """
-        return json.dumps(self.prompt, indent=indent)
+        return self.json_serializer.serialize(self.prompt, indent=indent)
 
-    def deserialize_json(self, serialized_data):
-        """ Deserialize the prompt data from JSON.
+    def to_yaml(self):
+        """ Serialize the prompt data to YAML.
         """
-        self.prompt = json.loads(serialized_data)
+        return self.yaml_serializer.serialize(self.prompt)
 
+    def to_xml(self):
+        """ Serialize the prompt data to XML.
+        """
+        return self.xml_serializer.serialize(self.prompt)
 
 class PromptParserFromFile(PromptParser):
     """
