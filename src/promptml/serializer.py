@@ -2,13 +2,13 @@ import json
 from xml.etree import ElementTree as ET
 from xml.dom import minidom
 from abc import ABC, abstractmethod
-
+from enum import Enum
 import yaml
 
 class Serializer(ABC):
     """ A class for serializing data to a specific format. """
     @abstractmethod
-    def serialize(self, data, **kwargs) -> str:
+    def serialize(self, prompt: dict, **kwargs) -> str:
         pass
 
 class XMLSerializer(Serializer):
@@ -52,28 +52,33 @@ class XMLSerializer(Serializer):
         xml_doc = minidom.parseString(ET.tostring(root)).toprettyxml(indent="    ")
         return xml_doc
 
-    def serialize(self, data, **kwargs):
-        return self._dict_to_xml(data)
+    def serialize(self, prompt: dict, **kwargs):
+        return self._dict_to_xml(prompt)
 
 class JSONSerializer(Serializer):
     """ A class for serializing data to JSON format. """
-    def serialize(self, data, **kwargs):
+    def serialize(self, prompt: dict, **kwargs):
         indent = kwargs.get("indent", 4)
-        return json.dumps(data, indent=indent)
+        return json.dumps(prompt, indent=indent)
 
 class YAMLSerializer(Serializer):
     """ A class for serializing data to YAML format. """
-    def serialize(self, data, **kwargs):
-        return yaml.dump(data)
+    def serialize(self, prompt: dict, **kwargs):
+        return yaml.dump(prompt)
+
+class SerializerFormat(Enum):
+    XML = "xml"
+    JSON = "json"
+    YAML = "yaml"
 
 class SerializerFactory:
     """ A class for creating serializers. """
     @staticmethod
     def create_serializer(format: str) -> Serializer:
-        if format == "xml":
+        if format == SerializerFormat.XML.value:
             return XMLSerializer()
-        elif format == "json":
+        elif format == SerializerFormat.JSON.value:
             return JSONSerializer()
-        elif format == "yaml":
+        elif format == SerializerFormat.YAML.value:
             return YAMLSerializer()
         raise ValueError("Invalid format")
