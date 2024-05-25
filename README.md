@@ -177,13 +177,6 @@ You can define variables in the promptML file and use them in the prompt `contex
 @end
 ```
 
-## TODO
-
-We are currently working on:
-
-1. `VSCode` syntax highlighting support
-2. Add more unit tests
-
 
 ## Serialization
 PromptML document can be serialized into multiple formats like:
@@ -211,3 +204,11 @@ prompt.to_json()
 # YAML
 prompt.to_yaml()
 ```
+
+## TODO
+
+We are currently working on:
+
+1. `VSCode` syntax highlighting support
+2. Add more unit tests
+3. Add RAG example
