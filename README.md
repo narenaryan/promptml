@@ -183,4 +183,31 @@ We are currently working on:
 
 1. `VSCode` syntax highlighting support
 2. Add more unit tests
-3. Add support for `XML` & `YAML` serialization
+
+
+## Serialization
+PromptML document can be serialized into multiple formats like:
+1. XML
+2. YAML
+3. JSON
+
+XML prompts are very-well understood by LLMs and promptML code can be used to generate an XML prompt like this:
+
+From previous example in this README file, we can call a `to_xml()` method on `prompt` object to generate a XML prompt.
+
+```python
+# XML
+serialized = prompt.to_xml()
+
+print(serialized)
+```
+
+Similarly you can generate a YAML or JSON prompt respectively from the same object:
+
+```python
+# JSON
+prompt.to_json()
+
+# YAML
+prompt.to_yaml()
+```
