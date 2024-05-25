@@ -25,7 +25,10 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = [
+  "lark==1.1.9",
+  "PyYAML==6.0.1",
+]
 
 [project.urls]
 Documentation = "https://github.com/narenaryan/promptml/blob/main/README.md"
