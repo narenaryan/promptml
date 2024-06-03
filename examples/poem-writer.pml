@@ -53,6 +53,6 @@
         @end
     @end
     @category
-        Poem
+        Arts
     @end
 @end

@@ -25,7 +25,7 @@
             Beginner
         @end
     @end
-    @metadata
-        domain: 'Mathematics'
+    @category
+        Education
     @end
 @end
