@@ -12,6 +12,10 @@ A regular prompt is an amalgamation of all these aspects into one entity. Prompt
 
 The language grammar can be found here: [grammar.lark](./src/promptml/grammar.lark)
 
+## For impatient:
+Install `promptml-cli` from here: https://github.com/narenaryan/promptml-cli to run PromptML programs with OpenAI & Google models.
+
+
 ## How PromptML looks ?
 
 The language is simple. You start blocks with `@` section annotation. A section ends with `@end` marker. Comments are started with `#` key. The prompt files ends with `.pml` extension.
