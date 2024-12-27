@@ -1,20 +1,3 @@
-"""
-This module provides a PromptParser class for parsing DSL code and extracting prompt information.
-
-The PromptParser class can parse DSL code and extract sections such as context,
-objective, instructions, examples, constraints, and metadata from the code.
-It uses regular expressions to search for specific
-patterns in the DSL code and extract the corresponding content.
-
-Example usage:
-    dsl_code = '''
-        ...
-    '''
-
-    parser = PromptParser(dsl_code)
-    prompt = parser.parse()
-"""
-
 import os
 from lark import Lark, Transformer
 from .serializer import SerializerFactory
@@ -52,21 +35,56 @@ class PromptMLTransformer(Transformer):
         """ Extract the block content."""
         return items[0]
 
-    def category(self, items):
-        """ Extract the category content."""
-        return {"category": items[0].strip()}
+    def if_else_block(self, items):
+        condition_var = items[0]
+        block_if = items[1:]
+        block_else = items[3:]
+
+        if condition_var.children[1] == "true":
+            return self.transform_block(block_if)
+        else:
+            return self.transform_block(block_else)
+
+    def transform_block(self, block_items):
+        transformed = {}
+        for item in block_items:
+            if hasattr(item, "data"):
+                transformed.update(item.data)
+            elif item:
+                transformed.update({"condition_true": item})
+        return transformed
+
+    def var_block(self, items):
+        """ Extract the variable block content."""
+        var_map = {}
+
+        for item in items:
+            var_symbol = item.children[0].strip()
+            var_value = item.children[1].strip()
+            var_map[var_symbol] = var_value
+
+        # Store the variables globally
+        globals()['vars_'] = var_map  # Using global so it can be accessed in other methods
+
+        return {"type": "vars", "data": var_map}
 
     def prompt(self, items):
         """ Extract the prompt content."""
         sections = {}
+        title = ""
         for child in items:
             if hasattr(child, "data") and child.data == "section":
                 data = child.children[0]
-                sections.update(data)
+                if hasattr(child.children[0], "data"):
+                    key = child.children[0].data
+                    if key == "title":
+                        title = child.children[0].children[0].strip()
+                else:
+                    sections.update(data)
             else:
                 sections.update(child)
 
-        return {"type": "prompt", "data": sections}
+        return {"type": "prompt", "data": sections, "title": title}
 
     def context(self, items):
         """ Extract the context section content."""
@@ -118,47 +136,6 @@ class PromptMLTransformer(Transformer):
         """ Extract the difficulty constraint content."""
         return {"difficulty": items[0].strip()}
 
-    def var_block(self, items):
-        """ Extract the variable block content."""
-        var_map = {}
-
-        for item in items:
-            var_symbol = item.children[0].strip()
-            var_value = item.children[1].strip()
-            var_map[var_symbol] = var_value
-
-        return {"type": "vars", "data": var_map}
-
-    def metadata(self, items):
-        """
-        Extracts the metadata section content.
-
-        Args:
-            items (list): A list of items representing the metadata section content.
-
-        Returns:
-            dict: A dictionary containing the extracted metadata section content.
-        """
-        metadata = {}
-
-        for item in items:
-            key = item.children[0].strip()
-            if key:
-                prop_type = item.children[1].type
-                value = item.children[1].strip()
-
-                if prop_type == "NUMBER":
-                    try:
-                        value = int(value)
-                    except ValueError:
-                        value = float(value)
-                elif prop_type == "STRING":
-                    value = value.strip("\"").strip("\'")
-
-                metadata[key] = value
-
-        return {"metadata": metadata}
-
     def text(self, items):
         """ Extract the text content."""
         return items[0]
@@ -169,7 +146,6 @@ class PromptParser:
     """
     transformer = PromptMLTransformer()
 
-    # Define the grammar for the prompt markup language.
     def __init__(self, code: str):
         promptml_grammar = None
         # get current directory
@@ -202,33 +178,4 @@ class PromptParser:
         self.prompt = PromptParser.transformer.transform(tree)
         return self.prompt
 
-    def to_json(self, indent=None):
-        """ Serialize the prompt data to JSON.
-        """
-        return self.json_serializer.serialize(self.prompt, indent=indent)
-
-    def to_yaml(self):
-        """ Serialize the prompt data to YAML.
-        """
-        return self.yaml_serializer.serialize(self.prompt)
-
-    def to_xml(self):
-        """ Serialize the prompt data to XML.
-        """
-        return self.xml_serializer.serialize(self.prompt)
-
-class PromptParserFromFile(PromptParser):
-    """
-    A subclass of PromptParser that reads DSL code from a file.
-    """
-    def __init__(self, file_path: str):
-        """
-        Initializes the PromptParserFromFile object by reading the DSL code from the specified file path
-        and passing it to the parent class constructor.
-
-        Args:
-            file_path (str): The path to the DSL code file.
-        """
-        with open(file_path, 'r', encoding='utf-8') as f:
-            dsl_code = f.read()
-        super().__init__(dsl_code)
+    

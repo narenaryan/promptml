@@ -1,25 +1,19 @@
-# PromptML Grammar #
-
 start: block+
-block:  prompt | var_block
+block: prompt | var_block | if_else_block
 
 var_block: "@vars" assignment* "@end"
 assignment: VAR_NAME "=" (NUMBER | STRING | FLOAT)
 VAR_NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
 
 prompt: "@prompt" section* "@end"
+section: title | context | objective | instructions | examples | constraints | category | metadata | if_else_block
 
-section: context
-        | objective
-        | instructions
-        | examples
-        | constraints
-        | category
-        | metadata
+if_else_block: "@if" condition "{" (STRING | objective)  "}" "@else" "{" STRING "}"
+condition: VAR_NAME "==" (NUMBER | STRING | FLOAT)
 
+title: "@title" STRING "@end"
 context: "@context" text "@end"
 objective: "@objective" text "@end"
-
 instructions: "@instructions" instruction* "@end"
 instruction: "@step" text "@end"
 
@@ -40,11 +34,10 @@ metadata: "@metadata" prop* "@end"
 prop: PROP_NAME ":" (NUMBER | STRING )
 PROP_NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
 
-# Token Definitions #
+
 STRING: /'[^']*'/ | /"[^"]*"/
 text: /[^@]+/
 
-# Ignored Tokens #
 %import common.WS
 %import common.NUMBER
 %import common.STRING
