@@ -19,13 +19,14 @@ import os
 from lark import Lark, Transformer
 from .serializer import SerializerFactory
 
+
 class PromptMLTransformer(Transformer):
     """
     A class for transforming the parsed PromptML tree into a Python dictionary.
     """
 
     def start(self, items):
-        """ Extract the start section content."""
+        """Extract the start section content."""
         prompt = {}
         vars_ = {}
         for item in items:
@@ -39,9 +40,9 @@ class PromptMLTransformer(Transformer):
         objective = prompt["objective"]
 
         # Replace variables in context and objective with values
-        for k,v in vars_.items():
-            context_ = context_.replace(r'$' + k, v.replace("'", '').replace('"', ''))
-            objective = objective.replace(r'$' + k, v.replace("'", '').replace('"', ''))
+        for k, v in vars_.items():
+            context_ = context_.replace(r"$" + k, v.replace("'", "").replace('"', ""))
+            objective = objective.replace(r"$" + k, v.replace("'", "").replace('"', ""))
 
         prompt["context"] = context_
         prompt["objective"] = objective
@@ -49,15 +50,15 @@ class PromptMLTransformer(Transformer):
         return prompt
 
     def block(self, items):
-        """ Extract the block content."""
+        """Extract the block content."""
         return items[0]
 
     def category(self, items):
-        """ Extract the category content."""
+        """Extract the category content."""
         return {"category": items[0].strip()}
 
     def prompt(self, items):
-        """ Extract the prompt content."""
+        """Extract the prompt content."""
         sections = {}
         for child in items:
             if hasattr(child, "data") and child.data == "section":
@@ -69,35 +70,35 @@ class PromptMLTransformer(Transformer):
         return {"type": "prompt", "data": sections}
 
     def context(self, items):
-        """ Extract the context section content."""
+        """Extract the context section content."""
         return {"context": items[0].strip()}
 
     def objective(self, items):
-        """ Extract the objective section content."""
+        """Extract the objective section content."""
         return {"objective": items[0].strip()}
 
     def instructions(self, items):
-        """ Extract the instructions section content."""
+        """Extract the instructions section content."""
         steps = [item.value.strip() for item in items]
         return {"instructions": steps}
 
     def instruction(self, items):
-        """ Extract the instruction content."""
+        """Extract the instruction content."""
         return items[0]
 
     def examples(self, items):
-        """ Extract the examples section content."""
+        """Extract the examples section content."""
         examples = list(items)
         return {"examples": examples}
 
     def example(self, items):
-        """ Extract the example content."""
+        """Extract the example content."""
         input_text = items[0].children[0].strip()
         output_text = items[1].children[0].strip()
         return {"input": input_text, "output": output_text}
 
     def constraints(self, items):
-        """ Extract the constraints section content."""
+        """Extract the constraints section content."""
         constraints = {}
         for item in items:
             constraints.update(item.children[0])
@@ -105,21 +106,21 @@ class PromptMLTransformer(Transformer):
         return {"constraints": constraints}
 
     def length(self, items):
-        """ Extract the length constraint content."""
+        """Extract the length constraint content."""
         min_length = int(items[0])
         max_length = int(items[1])
         return {"length": {"min": min_length, "max": max_length}}
 
     def tone(self, items):
-        """ Extract the tone constraint content."""
+        """Extract the tone constraint content."""
         return {"tone": items[0].strip()}
 
     def difficulty(self, items):
-        """ Extract the difficulty constraint content."""
+        """Extract the difficulty constraint content."""
         return {"difficulty": items[0].strip()}
 
     def var_block(self, items):
-        """ Extract the variable block content."""
+        """Extract the variable block content."""
         var_map = {}
 
         for item in items:
@@ -153,20 +154,20 @@ class PromptMLTransformer(Transformer):
                     except ValueError:
                         value = float(value)
                 elif prop_type == "STRING":
-                    value = value.strip("\"").strip("\'")
+                    value = value.strip('"').strip("'")
 
                 metadata[key] = value
 
         return {"metadata": metadata}
 
     def text(self, items):
-        """ Extract the text content."""
+        """Extract the text content."""
         return items[0]
 
 
 class PromptParser:
-    """A class for parsing prompt markup language code and extract information.
-    """
+    """A class for parsing prompt markup language code and extract information."""
+
     transformer = PromptMLTransformer()
 
     # Define the grammar for the prompt markup language.
@@ -174,7 +175,7 @@ class PromptParser:
         promptml_grammar = None
         # get current directory
         dir_path = os.path.abspath(os.path.dirname(__file__))
-        with open(f'{dir_path}/grammar.lark', 'r', encoding="utf-8") as f:
+        with open(f"{dir_path}/grammar.lark", "r", encoding="utf-8") as f:
             promptml_grammar = f.read()
 
         self.code = code
@@ -203,24 +204,23 @@ class PromptParser:
         return self.prompt
 
     def to_json(self, indent=None):
-        """ Serialize the prompt data to JSON.
-        """
+        """Serialize the prompt data to JSON."""
         return self.json_serializer.serialize(self.prompt, indent=indent)
 
     def to_yaml(self):
-        """ Serialize the prompt data to YAML.
-        """
+        """Serialize the prompt data to YAML."""
         return self.yaml_serializer.serialize(self.prompt)
 
     def to_xml(self):
-        """ Serialize the prompt data to XML.
-        """
+        """Serialize the prompt data to XML."""
         return self.xml_serializer.serialize(self.prompt)
+
 
 class PromptParserFromFile(PromptParser):
     """
     A subclass of PromptParser that reads DSL code from a file.
     """
+
     def __init__(self, file_path: str):
         """
         Initializes the PromptParserFromFile object by reading the DSL code from the specified file path
@@ -229,6 +229,6 @@ class PromptParserFromFile(PromptParser):
         Args:
             file_path (str): The path to the DSL code file.
         """
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             dsl_code = f.read()
         super().__init__(dsl_code)

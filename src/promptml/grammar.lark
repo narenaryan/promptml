@@ -42,7 +42,8 @@ PROP_NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
 
 # Token Definitions #
 STRING: /'[^']*'/ | /"[^"]*"/
-text: /[^@]+/
+text: TEXT
+TEXT: /(?s)(?:(?!\n[ \t]*@(?:end\b|context\b|objective\b|instructions\b|step\b|examples\b|example\b|input\b|output\b|constraints\b|length\b|tone\b|difficulty\b|category\b|metadata\b|vars\b|prompt\b)).)+/
 
 # Ignored Tokens #
 %import common.WS
