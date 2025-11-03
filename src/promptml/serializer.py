@@ -5,14 +5,18 @@ from abc import ABC, abstractmethod
 from enum import Enum
 import yaml
 
+
 class Serializer(ABC):
-    """ A class for serializing data to a specific format. """
+    """A class for serializing data to a specific format."""
+
     @abstractmethod
     def serialize(self, prompt: dict, **kwargs) -> str:
         pass
 
+
 class XMLSerializer(Serializer):
-    """ A class for serializing data to XML format. """
+    """A class for serializing data to XML format."""
+
     def _dict_to_xml(self, data, root_name="prompt"):
         """Convert a dictionary to XML"""
         root = ET.Element(root_name)
@@ -55,24 +59,31 @@ class XMLSerializer(Serializer):
     def serialize(self, prompt: dict, **kwargs):
         return self._dict_to_xml(prompt)
 
+
 class JSONSerializer(Serializer):
-    """ A class for serializing data to JSON format. """
+    """A class for serializing data to JSON format."""
+
     def serialize(self, prompt: dict, **kwargs):
         indent = kwargs.get("indent", 4)
         return json.dumps(prompt, indent=indent)
 
+
 class YAMLSerializer(Serializer):
-    """ A class for serializing data to YAML format. """
+    """A class for serializing data to YAML format."""
+
     def serialize(self, prompt: dict, **kwargs):
         return yaml.dump(prompt)
+
 
 class SerializerFormat(Enum):
     XML = "xml"
     JSON = "json"
     YAML = "yaml"
 
+
 class SerializerFactory:
-    """ A class for creating serializers. """
+    """A class for creating serializers."""
+
     @staticmethod
     def create_serializer(format: str) -> Serializer:
         if format == SerializerFormat.XML.value:
